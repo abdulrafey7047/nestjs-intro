@@ -6,6 +6,7 @@ import { UserMiddleware } from './user/user.middleware';
 import { UserModule } from './user/user.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [AuthModule, UserModule, BookmarkModule, PrismaModule],
@@ -15,11 +16,7 @@ import { PrismaModule } from './prisma/prisma.module';
 export class AppModule implements NestModule {
 
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(
-      UserMiddleware
-    ).forRoutes(
-      {path: 'users', method: RequestMethod.GET} //you can also pass the UserController class to forRoutes and it will apply the middle to all the routes in that controller
-    )
+    consumer.apply(UserMiddleware).forRoutes(UserController)
   }
 
 }
