@@ -1,24 +1,31 @@
 import { Controller, Get, HttpStatus, Param, ParseIntPipe, UseGuards, UseInterceptors } from "@nestjs/common";
-import { CustomParseIntPipe } from "./custom.pipe";
-import { UserGuard } from "./user.guard";
-import { UserLoggingInterceptor } from "./userLogging.interceptor";
+import { CustomParseIntPipe } from "./pipe";
+import { UserGuard } from "./guard";
+import { UserLoggingInterceptor } from "./interceptor";
+import { JwtGuard } from "src/auth/guard";
+import { GetUser } from "src/auth/decorator";
+import { User } from "@prisma/client";
+import { UserService } from "./user.service";
 
 @Controller('users')
 @UseGuards(UserGuard)
 @UseInterceptors(UserLoggingInterceptor)
 export class UserController {
 
+    constructor(private userService: UserService) {}
+
+    @UseGuards(JwtGuard)
     @Get('me')
-    getMe() {
-        return 'me'
+    getMe(@GetUser() user: User) {
+        return this.userService.getMe(user);
     }
 
     @Get(':id')
-    findOne(
-        // @Param('id', new ParseIntPipe({errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE}))
-        @Param('id', CustomParseIntPipe)
+    getId(
+        @Param('id', new ParseIntPipe({errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE}))
+        // @Param('id', CustomParseIntPipe)
         id: number
     ) {
-        return "the type of 'id' is: " + typeof(id)
+        return this.userService.getId(id);
     }
 }
